@@ -1,0 +1,50 @@
+version: '3.4'
+
+
+services:
+
+  sqldb:
+   container_name: sqldb
+   image: mcr.microsoft.com/mssql/server:2019-latest   
+   ports:
+     - "1433:1433"
+   environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_SA_PASSWORD=Password@12345#
+
+ 
+  dbapi:
+    container_name: dbapi
+    image: ${DOCKER_REGISTRY-}dbapi
+    build:
+      context: .
+      dockerfile: dbapi/Dockerfile
+    ports:
+      - "58433:80"
+      - "127.0.0.1:58441:80" 
+    depends_on:
+      - sqldb
+    environment:
+      - DB_HOST=host.docker.internal,1433
+      - DB_NAME=crmdb
+      - DB_SA_PASSWORD=Password@12345#
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  web:
+    container_name: web
+    image: ${DOCKER_REGISTRY-}web
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+       - "58432:80"
+       - "127.0.0.1:58440:80" 
+    depends_on:
+       - dbapi
+
+
+# docker-compose -f "docker-compose.yml" up -d
+
+# (local SQL db/web container)
+# DB_HOST=host.docker.internal,1433  (visual studio)
+# DB_HOST=127.0.0.1\sqldb,1433 (sql server mangment studio 18+)

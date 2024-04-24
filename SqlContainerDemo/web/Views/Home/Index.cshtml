@@ -1,0 +1,60 @@
+﻿@model web.Models.Customer
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<h2>( sql containers example using docker compose) 3 containers </h2>
+<h4>fonrtend.container- >  backendwebapi.container </h4>
+<h4>  backendwebapi.container -> sqlservercontainer ( default)</h4>
+<h4> all in one default network</h4>
+<br />
+
+<h2>
+    Add Customers
+</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddCustomer">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @*  <div class="form-group">
+            <label asp-for="Id" class="control-label"></label>
+            <input asp-for="Id" class="form-control" />
+            <span asp-validation-for="Id" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone" class="control-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div><br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <br />
+
+
+    @{
+
+        <div style="float:right;">
+            <a style="float:right; font-size:large;" asp-controller="Home" asp-action="Index">List customers</a>
+        </div>
+
+        await Html.RenderPartialAsync("GetAllCustomers", Model.AllCustomers);
+    }
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
