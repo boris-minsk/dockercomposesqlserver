@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,13 +12,20 @@ namespace web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private static readonly HttpClient _httpClient = new HttpClient();
-        public HomeController(ILogger<HomeController> logger)
+        private string dbhost = string.Empty;
+        private readonly IConfiguration Configuration;
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
+
+            Configuration = configuration;
+            dbhost = GetUrl();
         }
 
         public IActionResult Index()
         {
+
+
             var customer = new Customer();
             customer.AllCustomers = new List<Customer>();
             customer.AllCustomers.AddRange(GetAllCusotmers());
@@ -47,7 +54,7 @@ namespace web.Controllers
             "application/json");
 
             var response = _httpClient.PostAsync(
-                "http://host.docker.internal:58441/api/Db",
+                $"{dbhost}/api/Db",
                 jsonContent).Result;
 
             var alldata = GetAllCusotmers();
@@ -66,20 +73,42 @@ namespace web.Controllers
             var lst = new List<Customer>();
             try
             {
-                var content = _httpClient.GetAsync("http://host.docker.internal:58441/api/Db").Result;
+                var content = _httpClient.GetAsync($"{dbhost}/api/Db").Result;
                 var json = content.Content.ReadAsStringAsync().Result;
-                lst =JsonConvert.DeserializeObject<List<Customer>>(json);
+                lst = JsonConvert.DeserializeObject<List<Customer>>(json);
             }
             catch (Exception ex)
             {
 
-                
+
             }
 
             return lst;
-            
+
         }
 
+
+
+        string GetUrl()
+        {
+            string url = string.Empty;
+            var ENVIRONMENT_FLAG = Configuration["ENVIRONMENT_FLAG"];
+            if (ENVIRONMENT_FLAG == "Development")
+            {
+                return $"http://{Configuration["DB_API_URL"]}:{Configuration["HTTP_PORT"]}";
+
+            }
+
+            if (ENVIRONMENT_FLAG == "Production")
+            {
+                return $"https://{Configuration["DB_API_URL"]}:{Configuration["HTTP_PORT"]}";
+
+            }
+
+            return url;
+
+
+        }
 
     }
 }
