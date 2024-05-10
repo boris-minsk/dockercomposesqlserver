@@ -1,0 +1,25 @@
+﻿// these are dockers commands for frontend/backend (any)
+wxample path: C:\Users\yesad\source\repos\appforcontainersplaygroud\appforcontainersplaygroud
+
+1 open command prompt (e.g:vs 2022)
+2 docker login
+2 change the directory where .sln file, one up level (not .csprj or dockerfile)
+3. Now run the docker build command with tag like: ( with dot at end)
+   
+   docker build -f container.frontend/Dockerfile -t samueladnan/container.frontend:version2 .
+
+4. when build successfully, now push to docker hub (without dot)
+5. docker push samueladnan/container.frontend:version2
+
+________
+
+backendapi build
+docker build -f container.backendwebapi/Dockerfile -t samueladnan/container.backendwebapi:version1.0 .
+
+
+backendapi push
+docker push samueladnan/container.backendwebapi:version1.0
+
+___________ forfull remove contianer from windows docker 
+$ docker rmi -f containerbackendwebapi:dev
+
