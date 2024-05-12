@@ -15,9 +15,7 @@ services:
     container_name: dbapi
     image: samueladnan/dbapi    
     build:
-      context: .
-      tags:
-      - samueladnan/dbapi:v1-sqlbackend
+      context: .      
       dockerfile: dbapi/Dockerfile
     ports:
       - "58433:80"
@@ -34,9 +32,7 @@ services:
     container_name: web
     image: samueladnan/web
     build:
-      context: .
-      tags:
-      - samueladnan/web:v1-sqlfrontend
+      context: .      
       dockerfile: web/Dockerfile
     ports:
        - "58432:80"
