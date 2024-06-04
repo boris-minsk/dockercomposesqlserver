@@ -9,6 +9,9 @@ services:
    environment:
      - ACCEPT_EULA=Y
      - MSSQL_SA_PASSWORD=Password@12345#
+   volumes:
+     - ./data/:/var/opt/mssql/data/
+     - ./log/:/var/opt/mssql/log/
 
  
   dbapi:
