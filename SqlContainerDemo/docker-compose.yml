@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.8'
 services:
 
   sqldb:
@@ -8,18 +8,21 @@ services:
      - "1433:1433"
    environment:
      - ACCEPT_EULA=Y
-     - MSSQL_SA_PASSWORD=Password@12345#
+     - MSSQL_SA_PASSWORD=P@ssw0rd
+     - SA_PASSWORD=P@ssw0rd
+   # The volumes section is used to map directories from the host machine to directories inside the container. 
+   # This allows for data persistence and sharing between the host and the container.
    volumes:
-     - ./data/:/var/opt/mssql/data/
-     - ./log/:/var/opt/mssql/log/
-
+     - ./sqldata/:/var/opt/mssql/data/
+     - ./sqllog/:/var/opt/mssql/log/
  
   dbapi:
     container_name: dbapi
-    image: samueladnan/dbapi    
+    image: dbapi    
     build:
       context: .      
       dockerfile: dbapi/Dockerfile
+    # 127.0.0.1:58441:80 maps host port 58441 to container port 80, but only accessible via 'localhost'.
     ports:
       - "58433:80"
       - "127.0.0.1:58441:80" 
@@ -28,12 +31,12 @@ services:
     environment:
       - DB_HOST=host.docker.internal,1433
       - DB_NAME=crmdb
-      - DB_SA_PASSWORD=Password@12345#
+      - DB_SA_PASSWORD=P@ssw0rd
       - ASPNETCORE_ENVIRONMENT=Development
 
   web:
     container_name: web
-    image: samueladnan/web
+    image: web
     build:
       context: .      
       dockerfile: web/Dockerfile
