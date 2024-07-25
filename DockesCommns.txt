@@ -1,25 +1,99 @@
-﻿// these are dockers commands for frontend/backend (any)
-wxample path: C:\Users\yesad\source\repos\appforcontainersplaygroud\appforcontainersplaygroud
+REM cd F:\repos\Study\Containers\Docker\dockercomposesqlserver\src\Az3TierContainerApp
 
-1 open command prompt (e.g:vs 2022)
+REM MANUAL BUILD: docker build -t <image_name>:<tag> <path_to_dockerfile>
+
+docker build -t dbapi:v1 ./dbapi
+
+docker-compose -f "docker-compose.yml" up -d 
+
+http://localhost:58441/swagger/index.html
+
+Run the following command in the browser http://localhost:58440/ 
+
+you will see the local frontend container running to add data to the SQL database.
+
+Because localhost IP 127.0.0.1 is used, STOP LOCAL MS SQL Server first!!!
+MS SQL Server Management Studio, open server 127.0.0.1\sqldb,1433 - works!
+
+docker exec -it 8e29d3441f02 "bash"
+Prompt appears: mssql@8e29d3441f02:/$
+
+/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "P@ssw0rd"
+Prompt appears: 1>
+
+mssql@8e29d3441f02:/$ /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "P@ssw0rd"
+1> CREATE DATABASE TestDB;
+2> SELECT Name from sys.databases;
+3> go
+Name
+--------------------------------------------------------------------------------------------------------------------------------
+master
+tempdb
+model
+msdb
+TestDB
+
+(5 rows affected)
+1>
+
+1> exit
+mssql@8e29d3441f02:/$ exit
+exit
+
+What's next:. . .
+
+F:\repos\Study\Containers\Docker\dockercomposesqlserver\src\Az3TierContainerApp>
+
+Deploy to Azure Container Registry
+
+REM Tag Docker Images docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+REM SOURCE_IMAGE: The original image name and optional tag (default tag is latest).
+REM TARGET_IMAGE: The new image name and optional tag.
+REM This command does not create a new image; it simply references the existing image with a new name and tag.
+
+docker tag dbapi azmmgregistry.azurecr.io/dbapi:latest
+docker tag web azmmgregistry.azurecr.io/web:latest
+
+az login  
+az acr login --name azmmgregistry
+
+REM Push Docker Images to ACR
+docker push azmmgregistry.azurecr.io/dbapi:latest
+docker push azmmgregistry.azurecr.io/web:latest
+
+
+
+
+
+
+
+
+
+
+
+// these are dockers commands for frontend/backend (any) example
+ 
+path: F:\repos\Study\Containers\Docker\dockercomposesqlserver\src\SqlContainerDemo
+
+1 open command prompt (or VS 2022 or VSC)
 2 docker login
-2 change the directory where .sln file, one up level (not .csprj or dockerfile)
-3. Now run the docker build command with tag like: ( with dot at end)
+2 change to the directory containing the .sln file, one level up from .csprj or Dockerfile.
+3. Run the docker build command with tag like: ( with dot at end)
    
-   docker build -f container.frontend/Dockerfile -t samueladnan/container.frontend:version2 .
+   docker build -f web/Dockerfile -t web:v1 .
 
-4. when build successfully, now push to docker hub (without dot)
-5. docker push samueladnan/container.frontend:version2
+4. Tag for registry:
 
-________
+   docker tag web:v1 mmgjourneyregistry.azurecr.io/web:v1
 
-backendapi build
-docker build -f container.backendwebapi/Dockerfile -t samueladnan/container.backendwebapi:version1.0 .
+5. Push to docker hub or ACR:
+
+   docker push mmgjourneyregistry.azurecr.io/web:v1
 
 
-backendapi push
-docker push samueladnan/container.backendwebapi:version1.0
+az webapp config appsettings set --resource-group docker-deploy.grp --name sql-srv-standalone-linux --settings MSSQL_SA_PASSWORD=P@ssw0rd
+az webapp config appsettings set --resource-group docker-deploy.grp --name sql-srv-standalone-linux --settings SA_PASSWORD=P@ssw0rd
+az webapp config appsettings set --resource-group docker-deploy.grp --name sql-srv-standalone-linux --settings ACCEPT_EULA=Y
+az webapp config appsettings set --resource-group docker-deploy.grp --name sql-srv-standalone-linux --settings ASPNETCORE_ENVIRONMENT=Development
 
-___________ forfull remove contianer from windows docker 
-$ docker rmi -f containerbackendwebapi:dev
 
