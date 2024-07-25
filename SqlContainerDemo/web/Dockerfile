@@ -22,4 +22,7 @@ RUN dotnet publish "./web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:Use
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+HEALTHCHECK --interval=60s --timeout=10s --retries=2 CMD curl --fail http://localhost:58440/health #|| exit 1
+
 ENTRYPOINT ["dotnet", "web.dll"]
