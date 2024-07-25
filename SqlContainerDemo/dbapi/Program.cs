@@ -36,10 +36,18 @@ namespace dbapi
 
             app.UseHttpsRedirection();
 
+            app.UseRouting(); // Add this line to set up the routing middleware
+
             app.UseAuthorization();
 
-
-            app.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapGet("/health", async context =>
+                {
+                    await context.Response.WriteAsync("DB API is Healthy");
+                });
+            });
 
             app.Run();
         }
