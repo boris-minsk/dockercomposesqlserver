@@ -1,4 +1,4 @@
-﻿using dbapi.Models;
+using dbapi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,13 +16,12 @@ namespace dbapi.Controllers
         }
 
         [HttpGet(Name = "GetCustomers")]
-        public IEnumerable<Customer> GetGetCustomers()
+        public IEnumerable<Customer> GetCustomers()
         {
             //_dbContext.Customers.ToList();
 
             return _dbContext.Customers.ToList();
         }
-
 
         [HttpPost(Name = "AddCustomer")]
         public string AddCustomer(Customer customer)
@@ -32,13 +31,5 @@ namespace dbapi.Controllers
 
             return id.ToString();
         }
-
-
-
-
-
-
-
-
     }
 }
