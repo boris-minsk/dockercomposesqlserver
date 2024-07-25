@@ -2,7 +2,6 @@
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 80
 EXPOSE 443
 EXPOSE 58441
 
@@ -22,4 +21,7 @@ RUN dotnet publish "./dbapi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:U
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+HEALTHCHECK --interval=60s --timeout=10s --retries=2 CMD curl --fail http://localhost:58441/health #|| exit 1
+
 ENTRYPOINT ["dotnet", "dbapi.dll"]
