@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Text;
 using web.Models;
 
@@ -14,6 +12,7 @@ namespace web.Controllers
         private static readonly HttpClient _httpClient = new HttpClient();
         private string dbhost = string.Empty;
         private readonly IConfiguration Configuration;
+
         public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
@@ -24,12 +23,19 @@ namespace web.Controllers
 
         public IActionResult Index()
         {
-
-
             var customer = new Customer();
             customer.AllCustomers = new List<Customer>();
             customer.AllCustomers.AddRange(GetAllCusotmers());
             return View(customer);
+        }
+
+        [HttpGet]
+        [Route("health")]
+        public IActionResult HealthCheck()
+        {
+            // You can add logic here to check the health of various components
+            // For simplicity, we're returning a "Healthy" message
+            return Ok("Web Frontend is Healthy");
         }
 
         public IActionResult Privacy()
@@ -43,15 +49,12 @@ namespace web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
         [HttpPost]
         public IActionResult AddCustomer(Customer customer)
         {
 
             var json = JsonConvert.SerializeObject(customer);
-            using StringContent jsonContent = new StringContent(json,
-        Encoding.UTF8,
-            "application/json");
+            using StringContent jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = _httpClient.PostAsync(
                 $"{dbhost}/api/Db",
@@ -61,54 +64,29 @@ namespace web.Controllers
 
             return RedirectToAction("Index", "Home");
             //return View("Index", alldata);
-            //http://localhost:58441/WeatherForecast
-
         }
-
 
         //[HttpGet]
         public List<Customer> GetAllCusotmers()
         {
-
             var lst = new List<Customer>();
-            try
-            {
-                var content = _httpClient.GetAsync($"{dbhost}/api/Db").Result;
-                var json = content.Content.ReadAsStringAsync().Result;
-                lst = JsonConvert.DeserializeObject<List<Customer>>(json);
-            }
-            catch (Exception ex)
-            {
 
-
-            }
+            var content = _httpClient.GetAsync($"{dbhost}/api/Db").Result;
+            var json = content.Content.ReadAsStringAsync().Result;
+            lst = JsonConvert.DeserializeObject<List<Customer>>(json);
 
             return lst;
-
         }
-
-
 
         string GetUrl()
         {
-            string url = string.Empty;
-            var ENVIRONMENT_FLAG = Configuration["ENVIRONMENT_FLAG"];
-            if (ENVIRONMENT_FLAG == "Development")
+            string url = Configuration["DB_API_URL"];
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
             {
-                return $"http://{Configuration["DB_API_URL"]}:{Configuration["HTTP_PORT"]}";
-
+                var scheme = Configuration["ENVIRONMENT_FLAG"] == "Development" ? "http" : "https";
+                url = $"{scheme}://{url}";
             }
-
-            if (ENVIRONMENT_FLAG == "Production")
-            {
-                return $"https://{Configuration["DB_API_URL"]}:{Configuration["HTTP_PORT"]}";
-
-            }
-
             return url;
-
-
         }
-
     }
 }
